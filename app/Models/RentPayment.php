@@ -22,4 +22,15 @@ class RentPayment extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+
+
+    protected static function booted()
+{
+    static::creating(function ($payment) {
+        if (auth()->check()) {
+            $payment->user_id = auth()->id();
+        }
+    });
+}
 }
