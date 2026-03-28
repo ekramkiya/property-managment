@@ -57,17 +57,26 @@ class RentPaymentsTable
                     })
                     ->savePdf()
                     ->preview()
-                    ->filename(fn () => 'rent_payments_' . now()->format('Y-m-d') . '.pdf')
+                    ->filename(fn() => 'rent_payments_' . now()->format('Y-m-d') . '.pdf')
                     ->orientation('portrait')
                     ->format('a4')
             ])
             ->recordActions([
                 EditAction::make(),
+                Html2MediaAction::make('invoice')
+                    ->label('رسید پرداخت')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->content(fn($record) => view('pdf.rent_invoice', ['payment' => $record]))
+                    ->filename(fn($record) => 'invoice_' . $record->id . '.pdf')
+                    ->savePdf()            // enable PDF download
+                    ->preview()            // optional preview
+                    ->orientation('portrait')
+                    ->format('a4')
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     // DeleteBulkAction::make(),
-                       ExportBulkAction::make()
+                    ExportBulkAction::make()
                 ]),
             ]);
     }

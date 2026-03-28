@@ -10,6 +10,7 @@
         "filament/filament": "~4.0",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
+        "milon/barcode": "^13.1",
         "morilog/jalali": "^3.5",
         "pxlrbt/filament-excel": "^3.6",
         "torgodly/html2media": "^2.1"
