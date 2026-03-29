@@ -104,7 +104,7 @@
 <body>
     <div class="report">
         <div class="header">
-            <h1>گزارش پرداخت‌های اجاره</h1>
+            <h1>گزارش پرداخت‌های کرایه</h1>
             <div class="subtitle">سیستم مدیریت املاک</div>
         </div>
 
