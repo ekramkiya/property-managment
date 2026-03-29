@@ -24,6 +24,10 @@ class CustomerForm
                     ->required(),
                 TextInput::make('whatsapp_number')
                     ->label('شماره واتساپ'),
+                TextInput::make('telegram_chat_id')
+                    ->label('شناسه تلگرام (Chat ID)')
+                    ->nullable()
+                    ->helperText('شناسه عددی کاربر در تلگرام – در صورت وارد کردن، می‌توانید رسید را مستقیماً برای مشتری ارسال کنید.'),
                 TextInput::make('monthly_rent')
                     ->label('اجاره ماهانه')
                     ->required()

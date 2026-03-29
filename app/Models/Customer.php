@@ -9,7 +9,7 @@ class Customer extends Model
    
 
     protected $fillable = [
-        'name', 'father_name', 'lastname', 'phone', 'whatsapp_number', 'monthly_rent'
+        'name', 'father_name', 'lastname', 'phone', 'whatsapp_number', 'monthly_rent','telegram_chat_id'
     ];
 
     public function rentPayments()

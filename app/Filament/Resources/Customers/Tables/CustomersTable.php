@@ -29,6 +29,9 @@ class CustomersTable
                 TextColumn::make('whatsapp_number')
                     ->label('شماره واتساپ')
                     ->searchable(),
+                TextColumn::make('telegram_chat_id')
+                    ->label('ای دی تلگرام')
+                    ->searchable(),
                 TextColumn::make('monthly_rent')
                     ->label('اجاره ماهانه')
                     ->numeric()

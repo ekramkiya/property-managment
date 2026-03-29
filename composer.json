@@ -9,6 +9,7 @@
         "ariaieboy/filament-jalali": "^2.2",
         "barryvdh/laravel-dompdf": "^3.1",
         "filament/filament": "~4.0",
+        "irazasyed/telegram-bot-sdk": "^3.16",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "milon/barcode": "^13.1",

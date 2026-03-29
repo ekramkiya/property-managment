@@ -14,6 +14,11 @@ use Torgodly\Html2Media\Actions\Html2MediaAction;
 use Torgodly\Html2Media\Html2Media;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Telegram\Bot\Laravel\Facades\Telegram;
+use Telegram\Bot\FileUpload\InputFile;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Http;
+
 class RentPaymentsTable
 {
     public static function configure(Table $table): Table
@@ -77,38 +82,68 @@ class RentPaymentsTable
                     ->orientation('portrait')
                     ->format('a4'),
 
-                // WhatsApp share action
-                Action::make('shareWhatsapp')
-                    ->label('اشتراک در واتساپ')
-                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                    ->color('success')
+                // Telegram share action with font configuration
+                Action::make('shareTelegram')
+                    ->label('ارسال به تلگرام')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('info')
                     ->action(function ($record) {
-                        // 1. Generate PDF using DomPDF
-                        $pdf = Pdf::loadView('pdf.rent_invoice', ['payment' => $record->load('user')]);
+                        // 1. Generate PDF with custom font settings
+                        $pdf = Pdf::loadView('pdf.rent_invoice', ['payment' => $record->load('user')])
+                            ->setOptions([
+                                'fontDir' => public_path('fonts/ttf'),          // folder with TTF files
+                                'fontCache' => storage_path('fonts'),           // writable cache folder
+                                'defaultFont' => 'Vazirmatn',                  // font family name
+                                'isHtml5ParserEnabled' => true,
+                                'isRemoteEnabled' => true,
+                            ]);
                         $pdfContent = $pdf->output();
 
-                        // 2. Save the PDF in the temporary public folder
+                        // 2. Save to temporary file
                         $fileName = 'invoice_' . $record->id . '_' . Str::random(8) . '.pdf';
-                        $path = 'temp/' . $fileName;
-                        Storage::disk('public_temp')->put($path, $pdfContent);
+                        Storage::disk('public_temp')->put($fileName, $pdfContent);
+                        $localPath = Storage::disk('public_temp')->path($fileName);
 
-                        // 3. Get the public URL
-                        $url = Storage::disk('public_temp')->url($path);
-
-                        // 4. Prepare the customer's WhatsApp number
-                        $phone = $record->customer->whatsapp_number ?? $record->customer->phone;
-                        $phone = preg_replace('/\D/', '', $phone);
-                        if (!Str::startsWith($phone, '93')) { // adjust country code
-                            $phone = '93' . ltrim($phone, '0');
+                        // 3. Get chat ID
+                        $chatId = $record->customer->telegram_chat_id;
+                        if (!$chatId) {
+                            Notification::make()
+                                ->title('شماره تلگرام مشتری ثبت نشده است')
+                                ->danger()
+                                ->send();
+                            return;
                         }
 
-                        // 5. Create the WhatsApp message
-                        $message = "رسید پرداخت اجاره شماره {$record->id}:\n{$url}";
-                        $encodedMessage = urlencode($message);
+                        // 4. Send via HTTP client with timeout (disable SSL for local dev only)
+                        try {
+                            $response = Http::timeout(30)
+                                ->withoutVerifying()  // remove in production; ensure CA bundle is configured
+                                ->attach('document', file_get_contents($localPath), $fileName)
+                                ->post("https://api.telegram.org/bot" . env('TELEGRAM_BOT_TOKEN') . "/sendDocument", [
+                                    'chat_id' => $chatId,
+                                    'caption' => "رسید پرداخت اجاره شماره {$record->id}\nمبلغ: {$record->amount} AFN",
+                                ]);
 
-                        // 6. Redirect to WhatsApp
-                        return redirect("https://wa.me/{$phone}?text={$encodedMessage}");
-                    })
+                            if ($response->failed()) {
+                                $error = $response->json('description', 'Unknown error');
+                                throw new \Exception($error);
+                            }
+
+                            // Optionally delete the temporary file after sending
+                            // Storage::disk('public_temp')->delete($fileName);
+
+                            Notification::make()
+                                ->title('فایل با موفقیت ارسال شد')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('خطا در ارسال به تلگرام')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
