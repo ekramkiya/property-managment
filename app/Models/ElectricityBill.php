@@ -8,10 +8,11 @@ class ElectricityBill extends Model
 {
   
 
-    protected $fillable = ['customer_id', 'previous_reading', 'current_reading', 'reading_date', 'amount', 'note'];
+    protected $fillable = ['customer_id', 'previous_reading', 'current_reading', 'reading_date', 'amount', 'note','status'];
 
     protected $casts = [
         'reading_date' => 'date',
+         'status' => 'string',
     ];
 
     protected static function booted()

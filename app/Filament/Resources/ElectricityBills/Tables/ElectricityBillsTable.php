@@ -7,6 +7,10 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\IconColumn;
+use App\Models\ElectricityBill;
+use Filament\Actions\Action;
+use Torgodly\Html2Media\Actions\Html2MediaAction;
 
 class ElectricityBillsTable
 {
@@ -34,6 +38,17 @@ class ElectricityBillsTable
                     ->label(' مبلغ قابل پرداخت')
                     ->money('AFN') // or 'IRR' for Iranian Rial, adjust as needed
                     ->sortable(),
+                IconColumn::make('status')
+                    ->label('وضعیت')
+                    ->icon(fn(string $state): string => match ($state) {
+                        'paid' => 'heroicon-o-check-circle',
+                        'unpaid' => 'heroicon-o-x-circle',
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'paid' => 'success',
+                        'unpaid' => 'danger',
+                    })
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->label('تاریخ ایجاد')
                     ->dateTime()
@@ -52,6 +67,17 @@ class ElectricityBillsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Html2MediaAction::make('invoice')
+                    ->label('رسید پرداخت')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->content(fn($record) => view('pdf.electricity-bill', ['bill' => $record]))
+                    ->filename(fn($record) => 'invoice_' . $record->id . '.pdf')
+                    ->savePdf()
+                    ->preview()
+                    ->orientation('portrait')
+                    ->format('a4')
+                    ->visible(fn($record) => $record->status === 'paid'),
+
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
