@@ -6,6 +6,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/qr', function () {
+    return view('test');
+});
 
 use Illuminate\Support\Facades\Http;
 

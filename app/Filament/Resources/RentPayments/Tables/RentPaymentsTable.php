@@ -18,6 +18,10 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\FileUpload\InputFile;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
 
 class RentPaymentsTable
 {
@@ -36,6 +40,10 @@ class RentPaymentsTable
                     ->label('تاریخ پرداخت')
                     ->jalaliDate()
                     ->sortable(),
+                TextColumn::make('month')
+                    ->label('ماه')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('user.name')
                     ->label('ثبت‌کننده')
                     ->sortable(),
@@ -53,7 +61,30 @@ class RentPaymentsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // your filters
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_from')
+                            ->label('از تاریخ')
+                            ->jalali(),
+
+                        DatePicker::make('created_until')
+                            ->label('تا تاریخ')
+                            ->jalali(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['created_from'])) {
+                            $fromDate = Carbon::parse($data['created_from'])->startOfDay();
+                            $query->whereDate('created_at', '>=', $fromDate);
+                        }
+
+                        if (!empty($data['created_until'])) {
+                            $toDate = Carbon::parse($data['created_until'])->endOfDay();
+                            $query->whereDate('created_at', '<=', $toDate);
+                        }
+
+                        return $query;
+                    }),
+
             ])
             ->headerActions([
                 Html2MediaAction::make('exportPdf')
@@ -131,7 +162,7 @@ class RentPaymentsTable
 
                             // Optionally delete the temporary file after sending
                             // Storage::disk('public_temp')->delete($fileName);
-
+            
                             Notification::make()
                                 ->title('فایل با موفقیت ارسال شد')
                                 ->success()

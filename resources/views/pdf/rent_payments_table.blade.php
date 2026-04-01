@@ -121,7 +121,10 @@
                  <tr>
                     <th>مشتری</th>
                     <th>مبلغ (AFN)</th>
+                    <th>بابت ماه</th>
                     <th>تاریخ پرداخت</th>
+                    <th>توضیحات</th>
+
                     <th>ثبت‌کننده</th>
                     <th>یادداشت</th>
                  </tr>
@@ -131,7 +134,9 @@
     <tr>
         <td>{{ $payment->customer->name ?? '' }} {{ $payment->customer->lastname ?? '' }}</td>
         <td class="amount">{{ number_format($payment->amount) }}</td>
+        <td>{{ $payment->month ?? '' }}</td>
         <td>{{ \Morilog\Jalali\Jalalian::fromCarbon($payment->payment_date)->format('Y/m/d') }}</td>
+        <td>{{ $payment->note ?? '' }}</td>
         <td>{{ $payment->user->name ?? '' }}</td>
         <td>{{ $payment->note ?? '' }}</td>
     </tr>

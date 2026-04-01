@@ -9,6 +9,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 use App\Models\Customer;
 use Filament\Forms\Components\Hidden;
+use App\Enums\AfghanMonth;
 class RentPaymentForm
 {
     public static function configure(Schema $schema): Schema
@@ -25,7 +26,13 @@ class RentPaymentForm
                     ->label('مبلغ پرداختی')
                     ->required()
                     ->numeric()
-                    ->prefix('AFN'), // or your currency
+                    ->prefix('AFN'),
+                // or your currency
+                Select::make('month')
+                    ->label('ماه')
+                    ->options(AfghanMonth::options())
+                    ->required()
+                    ->default(AfghanMonth::current()->value), // optional, sets current month
                 DatePicker::make('payment_date')
                     ->label('تاریخ پرداخت')
                     ->required()

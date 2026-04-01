@@ -111,6 +111,10 @@
         <div class="info">
             <table>
                 <tr>
+                    <td class="label">شماره رسید:</td>
+                    <td>{{ $payment->id }}</td>
+                </tr>
+                <tr>
                     <td class="label">مشتری:</td>
                     <td>{{ $payment->customer->name }} {{ $payment->customer->lastname }}</td>
                 </tr>
@@ -118,14 +122,21 @@
                     <td class="label">مبلغ:</td>
                     <td>{{ number_format($payment->amount) }} AFN</td>
                 </tr>
+                 <tr>
+                    <td class="label">بابت ماه:</td>
+                    <td>{{ $payment->month }} </td>
+                </tr>
+                 <tr>
+                    <td class="label">توضیحات:</td>
+                    <td>{{ $payment->note }} </td>
+                </tr>
+
+
                 <tr>
                     <td class="label">تاریخ پرداخت:</td>
                     <td>{{ \Morilog\Jalali\Jalalian::fromCarbon($payment->payment_date)->format('Y/m/d') }}</td>
                 </tr>
-                <tr>
-                    <td class="label">شماره رسید:</td>
-                    <td>{{ $payment->id }}</td>
-                </tr>
+                
             </table>
         </div>
 

@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use App\Enums\AfghanMonth;
+
 use Illuminate\Database\Eloquent\Model;
 
 class RentPayment extends Model
 {
   
 
-    protected $fillable = ['customer_id', 'amount', 'payment_date', 'note','user_id'];
+    protected $fillable = ['customer_id', 'amount', 'payment_date', 'note','user_id','month'];
 
     protected $casts = [
         'payment_date' => 'date',
+        'month' => AfghanMonth::class,
     ];
 
     public function user()
