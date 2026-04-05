@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Customers\Schemas;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-
+use Filament\Forms\Components\DatePicker;
 class CustomerForm
 {
     public static function configure(Schema $schema): Schema
@@ -18,6 +18,15 @@ class CustomerForm
                     ->label('نام پدر'),
                 TextInput::make('lastname')
                     ->label('نام خانوادگی'),
+                DatePicker::make('start_date_of_contract')
+                    ->label('تاریخ شروع قرارداد')
+                    ->jalali(weekdaysShort: true)
+                    ->hasToday(),
+
+                DatePicker::make('end_date_of_contract')
+                    ->label('تاریخ پایان قرارداد')
+                    ->jalali(weekdaysShort: true)
+                    ->hasToday(),
                 TextInput::make('phone')
                     ->label('شماره تلفن')
                     ->tel()

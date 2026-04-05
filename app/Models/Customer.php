@@ -9,8 +9,22 @@ class Customer extends Model
    
 
     protected $fillable = [
-        'name', 'father_name', 'lastname', 'phone', 'whatsapp_number', 'monthly_rent','telegram_chat_id'
+        'name', 'father_name', 
+        'lastname', 
+        'phone',
+         'whatsapp_number', 
+         'monthly_rent',
+         'telegram_chat_id',
+        'start_date_of_contract',   // new
+        'end_date_of_contract'      // new
     ];
+
+
+        protected $casts = [
+        'start_date_of_contract' => 'date',
+        'end_date_of_contract'   => 'date',
+    ];
+
 
     public function rentPayments()
     {

@@ -23,6 +23,15 @@ class CustomersTable
                 TextColumn::make('lastname')
                     ->label('نام خانوادگی')
                     ->searchable(),
+                TextColumn::make('start_date_of_contract')
+                    ->label('تاریخ شروع قرارداد')
+                    ->jalaliDate()          // instead of ->date()
+                    ->searchable(),
+
+                TextColumn::make('end_date_of_contract')
+                    ->label('تاریخ پایان قرارداد')
+                    ->jalaliDate()         // instead of ->date()
+                    ->searchable(),
                 TextColumn::make('phone')
                     ->label('شماره تلفن')
                     ->searchable(),
