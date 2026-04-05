@@ -175,6 +175,52 @@ class RentPaymentsTable
                                 ->send();
                         }
                     }),
+                
+                
+
+// WhatsApp share action
+Action::make('shareWhatsapp')
+    ->label('اشتراک در واتساپ')
+    ->icon('heroicon-o-chat-bubble-left-ellipsis')
+    ->color('success')
+    ->action(function ($record) {
+        // 1. Generate PDF using DomPDF with proper font support
+        $pdf = Pdf::loadView('pdf.rent_invoice', ['payment' => $record->load('user')])
+            ->setOptions([
+                'defaultFont' => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => false,
+                'isPhpEnabled' => false,
+            ]);
+        
+        $pdfContent = $pdf->output();
+
+        // 2. Save directly to public/temp/ folder (no symlink, no storage disk)
+        $fileName = 'invoice_' . $record->id . '_' . Str::random(8) . '.pdf';
+        $relativePath = 'temp/' . $fileName;   // relative to public/
+        $fullPath = public_path($relativePath);
+        
+        // Create the temp directory if it doesn't exist
+        if (!is_dir(public_path('temp'))) {
+            mkdir(public_path('temp'), 0755, true);
+        }
+        
+        file_put_contents($fullPath, $pdfContent);
+
+        // 3. Generate public URL (no /storage prefix, just /temp/...)
+        $url = asset($relativePath);   // e.g., https://kiya-mms.wuaze.com/temp/invoice_1_xxx.pdf
+
+        // 4. Prepare WhatsApp number
+        $phone = $record->customer->whatsapp_number ?? $record->customer->phone;
+        $phone = preg_replace('/\D/', '', $phone);
+        if (!Str::startsWith($phone, '93')) {
+            $phone = '93' . ltrim($phone, '0');
+        }
+
+        // 5. Create message and redirect
+        $message = "رسید پرداخت کرایه {$record->id}:\n{$url}";
+        return redirect("https://wa.me/{$phone}?text=" . urlencode($message));
+    })
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

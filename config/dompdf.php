@@ -179,7 +179,7 @@ return [
          *
          * @var string
          */
-        'default_font' => 'XB NiloofarBd',
+        'default_font' => 'DejaVu Sans',
 
         /**
          * Image DPI setting

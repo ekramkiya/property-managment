@@ -7,7 +7,7 @@
     <style>
         /* Thermal printer friendly */
         body {
-            font-family: 'DejaVu Sans', 'Tahoma', sans-serif;
+            font-family: 'XB NiloofarBd', 'DejaVu Sans', 'Tahoma', sans-serif;
             margin: 0;
             padding: 0;
             font-size: 10px;
@@ -122,11 +122,11 @@
                     <td class="label">مبلغ:</td>
                     <td>{{ number_format($payment->amount) }} AFN</td>
                 </tr>
-                 <tr>
+                <tr>
                     <td class="label">بابت ماه:</td>
                     <td>{{ $payment->month }} </td>
                 </tr>
-                 <tr>
+                <tr>
                     <td class="label">توضیحات:</td>
                     <td>{{ $payment->note }} </td>
                 </tr>
@@ -136,7 +136,7 @@
                     <td class="label">تاریخ پرداخت:</td>
                     <td>{{ \Morilog\Jalali\Jalalian::fromCarbon($payment->payment_date)->format('Y/m/d') }}</td>
                 </tr>
-                
+
             </table>
         </div>
 
