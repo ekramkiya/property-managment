@@ -2,86 +2,83 @@
 <html lang="fa" dir="rtl">
 
 <head>
-    <meta charset="UTF-8">
-    <title>رسید پرداخت اجاره</title>
+    <meta charset="UTF-8" />
+    <title>رسید پرداخت</title>
+
     <style>
-        /* Thermal printer friendly */
+        @font-face {
+            font-family: 'DejaVu Sans';
+            /* Use absolute path to your font file on server */
+            src: url("file://{{ public_path('fonts/DejaVuSans.ttf') }}") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+
         body {
-            font-family: 'XB NiloofarBd', 'DejaVu Sans', 'Tahoma', sans-serif;
-            margin: 0;
-            padding: 0;
-            font-size: 10px;
             width: 80mm;
-            max-width: 80mm;
+            margin: 0 auto;
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 12px;
+            color: #000;
+            direction: rtl;
         }
 
         .invoice-box {
-            margin: 0;
+            width: 100%;
             padding: 5px;
-            /* Prevent page break inside the main container */
-            page-break-inside: avoid;
-            page-break-after: avoid;
+            box-sizing: border-box;
         }
 
         .header {
             text-align: center;
-            border-bottom: 1px dashed #000;
-            padding-bottom: 3px;
-            /* reduced */
-            margin-bottom: 5px;
-            /* reduced */
+            margin-bottom: 10px;
         }
 
         .header h1 {
+            font-size: 16px;
             margin: 0;
-            font-size: 14px;
         }
 
         .header p {
-            margin: 2px 0;
-            font-size: 9px;
+            font-size: 11px;
+            margin: 3px 0;
         }
 
         .info table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9px;
-            margin: 5px 0;
-            /* reduced */
         }
 
         .info td {
-            padding: 3px 2px;
-            /* slightly less */
-            border: none;
+            padding: 3px 0;
             vertical-align: top;
+            word-break: break-word;
         }
 
-        .info td.label {
+        .label {
             font-weight: bold;
-            width: 35%;
+            width: 40%;
+            text-align: right;
+        }
+
+        /* Wrap LTR content (English, numbers) explicitly */
+        .ltr {
+            direction: ltr;
+            unicode-bidi: embed;
+            font-family: 'DejaVu Sans', monospace, sans-serif;
         }
 
         .total {
+            margin-top: 10px;
             font-weight: bold;
-            text-align: left;
-            margin-top: 5px;
-            padding-top: 3px;
-            border-top: 1px dashed #000;
-            font-size: 10px;
-        }
-
-        .footer {
-            margin-top: 5px;
             text-align: center;
-            font-size: 8px;
             border-top: 1px dashed #000;
-            padding-top: 3px;
+            padding-top: 5px;
         }
 
         .barcode-section {
-            margin: 5px 0;
             text-align: center;
+            margin-top: 10px;
         }
 
         .barcode-section svg {
@@ -89,85 +86,97 @@
             height: auto;
         }
 
-        hr {
-            border: none;
-            border-top: 1px dashed #000;
+        .footer {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 11px;
         }
 
-        /* Ensure no extra page breaks inside any element */
-        * {
-            page-break-inside: avoid;
+        @media print {
+            body {
+                width: 80mm;
+            }
         }
     </style>
 </head>
 
 <body>
+
     <div class="invoice-box">
+
         <div class="header">
             <h1>رسید پرداخت کرایه</h1>
-            <p>تاریخ: {{ \Morilog\Jalali\Jalalian::now()->format('Y/m/d') }}</p>
+            <p>تاریخ: <span class="ltr">{{ \Morilog\Jalali\Jalalian::now()->format('Y/m/d') }}</span></p>
         </div>
 
         <div class="info">
             <table>
                 <tr>
                     <td class="label">شماره رسید:</td>
-                    <td>{{ $payment->id }}</td>
+                    <td><span class="ltr">{{ $payment->id }}</span></td>
                 </tr>
                 <tr>
                     <td class="label">مشتری:</td>
-                    <td>{{ $payment->customer->name }} {{ $payment->customer->lastname }}</td>
+                    <td>
+                        <span class="ltr">{{ $payment->customer->name }}</span>
+                        <span class="ltr">{{ $payment->customer->lastname }}</span>
+                    </td>
                 </tr>
                 <tr>
                     <td class="label">مبلغ:</td>
-                    <td>{{ number_format($payment->amount) }} AFN</td>
+                    <td><span class="ltr">{{ number_format($payment->amount) }} AFN</span></td>
                 </tr>
                 <tr>
                     <td class="label">بابت ماه:</td>
-                    <td>{{ $payment->month }} </td>
+                    <td>{{ $payment->month }}</td>
                 </tr>
                 <tr>
                     <td class="label">توضیحات:</td>
-                    <td>{{ $payment->note }} </td>
+                    <td>{{ $payment->note }}</td>
                 </tr>
-
-
                 <tr>
                     <td class="label">تاریخ پرداخت:</td>
-                    <td>{{ \Morilog\Jalali\Jalalian::fromCarbon($payment->payment_date)->format('Y/m/d') }}</td>
+                    <td><span class="ltr">{{ \Morilog\Jalali\Jalalian::fromCarbon($payment->payment_date)->format('Y/m/d') }}</span></td>
                 </tr>
-
             </table>
         </div>
 
         <div class="total">
-            جمع: {{ number_format($payment->amount) }} AFN
+            جمع: <span class="ltr">{{ number_format($payment->amount) }} AFN</span>
         </div>
 
         <!-- QR Code Section -->
         <div class="barcode-section">
             @php
-                $payment->loadMissing('user');  // loads only if not already loaded
+                $payment->loadMissing('user');
                 $userName = $payment->user->name ?? 'N/A';
-                $qrData = "Invoice: {$payment->id}\nAmount: {$payment->amount} AFN\nDate: " . ($payment->payment_date instanceof \Carbon\Carbon ? $payment->payment_date->toDateString() : $payment->payment_date) . "\nUser: {$userName}";
+
+                $qrData = "Invoice: {$payment->id}\n"
+                    . "Amount: {$payment->amount} AFN\n"
+                    . "Date: " . (
+                        $payment->payment_date instanceof \Carbon\Carbon
+                        ? $payment->payment_date->toDateString()
+                        : $payment->payment_date
+                    ) . "\n"
+                    . "User: {$userName}";
+
                 $qrSvg = \Milon\Barcode\Facades\DNS2DFacade::getBarcodeHTML($qrData, 'QRCODE', 2, 2);
             @endphp
-            <div>
-                {{-- <strong>QR Code</strong><br> --}}
-                @if($qrSvg)
-                    {!! $qrSvg !!}
-                @else
-                    <div style="color: red;">خطا در تولید QR Code</div>
-                @endif
-                {{-- <div style="font-size: 8px; margin-top: 2px;">شماره: {{ $payment->id }}</div> --}}
-            </div>
+
+            @if($qrSvg)
+                {!! $qrSvg !!}
+            @else
+                <div style="color:red;">خطا در تولید QR Code</div>
+            @endif
         </div>
 
         <div class="footer">
-            با تشکر از شما<br>
+            با تشکر از شما<br />
             سیستم مدیریت املاک
         </div>
+
     </div>
+
 </body>
 
 </html>
