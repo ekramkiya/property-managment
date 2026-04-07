@@ -34,7 +34,12 @@ class RentPaymentsTable
                     ->getStateUsing(function ($record) {
                         return $record->customer->name . ' ' . $record->customer->lastname;
                     })
-                    ->searchable(),
+                    ->searchable(query: function ($query, $search) {
+                        return $query->whereHas('customer', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%")
+                                ->orWhere('lastname', 'like', "%{$search}%");
+                        });
+                    }),
                 TextColumn::make('amount')
                     ->label('مبلغ')
                     ->money('AFN')
